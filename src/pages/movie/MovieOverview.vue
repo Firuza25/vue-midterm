@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { useMovieDetails } from '../composables/useTmdb'
-import { imgBackdrop, imgPoster, yearOf } from '../utils/format'
-import TrailerModal from '../components/TrailerModal.vue'
-import RatingStars from '../components/RatingStars.vue'
-import { useFavoritesStore } from "../stores/favorites"
+import { useMovieDetails } from "../../composables/useTmdb"
+import { imgBackdrop, imgPoster, yearOf } from "../../utils/format"
+import TrailerModal from "../../components/TrailerModal.vue"
+import RatingStars from "../../components/RatingStars.vue"
+import { useFavoritesStore } from "../../stores/favorites"
 
 const route = useRoute()
 const id = Number(route.params.id)

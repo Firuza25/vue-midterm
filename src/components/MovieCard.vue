@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { useFavorites } from '../composables/useFavorites'
+import { useFavoritesStore } from "../stores/favorites"
 import type { Movie } from '../composables/useTmdb'
 
 const props = defineProps<{ movie: Movie }>()
 
-const { toggle, has } = useFavorites()
+const favoritesStore = useFavoritesStore()
 
 const posterUrl = computed(() =>
   props.movie.poster_path
@@ -14,12 +14,12 @@ const posterUrl = computed(() =>
     : 'https://via.placeholder.com/300x450?text=No+Image'
 )
 
-const isFavorite = computed(() => has(props.movie.id))
+const isFavorite = computed(() => favoritesStore.has(props.movie.id))
 
 function toggleFavorite(e: Event) {
   e.preventDefault()
   e.stopPropagation()
-  toggle(props.movie)
+  favoritesStore.toggle(props.movie)
 }
 </script>
 

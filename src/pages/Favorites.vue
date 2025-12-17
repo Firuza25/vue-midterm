@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, watch } from 'vue'
-import { useFavorites } from '../composables/useFavorites'
+import { storeToRefs } from "pinia"
+import { useFavoritesStore } from "../stores/favorites"
 import MovieCard from '../components/MovieCard.vue'
 import Papa from 'papaparse'
 import jsPDF from 'jspdf'
@@ -8,7 +9,9 @@ import { Chart, registerables } from 'chart.js'
 
 Chart.register(...registerables)
 
-const { list, clear } = useFavorites()
+const favoritesStore = useFavoritesStore()
+const { list } = storeToRefs(favoritesStore) // ✅ reactive getter
+const clear = favoritesStore.clear            // ✅ action
 
 const pieChartRef = ref<HTMLCanvasElement | null>(null)
 const barChartRef = ref<HTMLCanvasElement | null>(null)
@@ -25,7 +28,7 @@ const genreMap: Record<number, string> = {
 const genreCounts = computed(() => {
   const counts: Record<string, number> = {}
   list.value.forEach(m => {
-    (m.genre_ids || []).forEach(g => {
+    ;(m.genre_ids || []).forEach(g => {
       const name = genreMap[g] || String(g)
       counts[name] = (counts[name] || 0) + 1
     })
@@ -33,18 +36,20 @@ const genreCounts = computed(() => {
   return counts
 })
 
-const ratings = computed(() => list.value.map(m => Number(m.vote_average || 0)).filter(Boolean))
+const ratings = computed(() =>
+  list.value.map(m => Number(m.vote_average || 0)).filter(Boolean)
+)
 
 function createCharts() {
   if (!list.value.length) return
-  
+
   if (pieChart) pieChart.destroy()
   if (barChart) barChart.destroy()
 
   if (pieChartRef.value) {
     const genreLabels = Object.keys(genreCounts.value)
     const genreData = Object.values(genreCounts.value)
-    
+
     pieChart = new Chart(pieChartRef.value, {
       type: 'pie',
       data: {
@@ -70,9 +75,7 @@ function createCharts() {
               font: { size: 11 }
             }
           },
-          title: {
-            display: false
-          }
+          title: { display: false }
         }
       }
     })
@@ -120,9 +123,7 @@ watch(() => list.value.length, () => {
 }, { immediate: false })
 
 onMounted(() => {
-  if (list.value.length) {
-    createCharts()
-  }
+  if (list.value.length) createCharts()
 })
 
 function downloadCSV() {
@@ -189,7 +190,7 @@ function downloadPDF() {
           </svg>
           {{ list.length }} {{ list.length === 1 ? 'movie' : 'movies' }}
         </span>
-        <button class="btn btn-danger" @click="clear">
+        <button class="btn btn-danger" @click="clear()">
           <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
           </svg>
