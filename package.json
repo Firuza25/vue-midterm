@@ -22,7 +22,6 @@
     "vue-router": "^4.4.5"
   },
   "devDependencies": {
-    "@pinia/testing": "^1.0.3",
     "@types/node": "^20.14.10",
     "@types/papaparse": "^5.3.16",
     "@vitejs/plugin-vue": "^5.1.2",
