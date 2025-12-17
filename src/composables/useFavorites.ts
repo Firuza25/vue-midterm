@@ -9,7 +9,6 @@ type Fav = {
   genre_ids?: number[] 
 }
 
-// Используем только реактивное состояние в памяти
 const state = reactive<{ map: Record<number, Fav> }>({
   map: {}
 })

@@ -39,7 +39,7 @@ async function get(path: string, params: Record<string, any> = {}) {
     }
   }
 
-  const res = await fetch(url.toString(), { cache: 'no-store' }) // важно: выключаем кэш
+  const res = await fetch(url.toString(), { cache: 'no-store' })
   if (!res.ok) throw new Error(`Failed to fetch ${path} (${res.status})`)
   return res.json()
 }
@@ -65,7 +65,6 @@ export function useDiscover() {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  // ВАЖНО: filters — это ref, чтобы v-model корректно менял объект
   const filters = ref<Filters>({
     query: '',
     genreId: undefined,
@@ -85,9 +84,8 @@ export function useDiscover() {
     loading.value = true
     error.value = null
     try {
-      const f = filters.value // читаем актуальную ссылку один раз
+      const f = filters.value
 
-      // Ветка поиска — сервер фильтрует по query, остальное фильтруем/сортируем локально
       if (f.query.trim()) {
         const data = await searchMovies(f.query, p)
         let results: Movie[] = Array.isArray(data.results) ? data.results : []
@@ -122,7 +120,6 @@ export function useDiscover() {
               new Date(b.release_date ?? 0).getTime()
           )
         }
-        // popularity.* оставляем как есть — search уже ранжирует по релевантности/популярности
 
         movies.value = results
         page.value = data.page ?? p
@@ -130,7 +127,6 @@ export function useDiscover() {
         return
       }
 
-      // Ветка discover — все фильтры уходим в query-параметры
       const params: Record<string, any> = {
         page: p,
         sort_by: f.sortBy || 'popularity.desc',
@@ -157,7 +153,6 @@ export function useDiscover() {
     if (page.value > 1) fetchPage(page.value - 1)
   }
 
-  // первая загрузка жанров (список фильмов грузится снаружи через apply)
   loadGenres()
 
   return {
@@ -167,7 +162,7 @@ export function useDiscover() {
     totalPages,
     loading,
     error,
-    filters,     // ref<Filters>
+    filters, 
     fetchPage,
     next,
     prev,
@@ -175,7 +170,6 @@ export function useDiscover() {
   }
 }
 
-// ======= Детали фильма =======
 export function useMovieDetails(id: number | Ref<number>) {
   const data = ref<any>(null)
   const isLoading = ref(false)
