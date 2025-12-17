@@ -14,17 +14,14 @@ const emit = defineEmits<{
   (e: 'apply'): void
 }>()
 
-// Локальная копия для удобного ввода
 const local = ref<Filters>({ ...props.modelValue })
 
-// Если снаружи фильтры поменялись — синхронизируем
 watch(
   () => props.modelValue,
   (v) => { local.value = { ...v } },
   { deep: true }
 )
 
-// Универсальный пуш наверх (с приведением типов)
 function push() {
   emit('update:modelValue', {
     query: local.value.query ?? '',
@@ -44,7 +41,6 @@ function push() {
   })
 }
 
-// Handlers: сразу обновляем модель при изменениях
 function onQueryInput(e: Event) {
   local.value.query = (e.target as HTMLInputElement).value
   push()
@@ -68,7 +64,6 @@ function onSortChange(e: Event) {
 }
 
 function apply() {
-  // гарантируем актуальную модель и просим родителя перезагрузить
   push()
   emit('apply')
 }

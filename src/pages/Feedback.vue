@@ -27,7 +27,6 @@ function submit() {
   touched.name = touched.email = touched.message = true
   if (!isValid.value) return
 
-  // можешь позже заменить на сохранение в store
   alert("Thanks! Feedback submitted ✅")
 
   form.name = ""

@@ -10,8 +10,8 @@ import { Chart, registerables } from 'chart.js'
 Chart.register(...registerables)
 
 const favoritesStore = useFavoritesStore()
-const { list } = storeToRefs(favoritesStore) // ✅ reactive getter
-const clear = favoritesStore.clear            // ✅ action
+const { list } = storeToRefs(favoritesStore) 
+const clear = favoritesStore.clear            
 
 const pieChartRef = ref<HTMLCanvasElement | null>(null)
 const barChartRef = ref<HTMLCanvasElement | null>(null)
