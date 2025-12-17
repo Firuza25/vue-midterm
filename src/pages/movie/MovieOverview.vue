@@ -19,15 +19,14 @@ const year = computed(() => yearOf(data.value?.release_date))
 
 const favoritesStore = useFavoritesStore()
 
-/* Reviews logic */
 const expandedReviews = ref<Record<string, boolean>>({})
 
-function isExpanded(id: string) {
-  return !!expandedReviews.value[id]
+function isExpanded(reviewId: string) {
+  return !!expandedReviews.value[reviewId]
 }
 
-function toggleReview(id: string) {
-  expandedReviews.value[id] = !expandedReviews.value[id]
+function toggleReview(reviewId: string) {
+  expandedReviews.value[reviewId] = !expandedReviews.value[reviewId]
 }
 
 function shortText(text: string, limit = 320) {
@@ -36,10 +35,8 @@ function shortText(text: string, limit = 320) {
 </script>
 
 <template>
-  <!-- Error -->
   <div v-if="error" class="empty">{{ error }}</div>
 
-  <!-- Loading -->
   <div v-else-if="isLoading" class="grid">
     <div class="skeleton hero"></div>
     <div class="skeleton title"></div>
@@ -47,21 +44,13 @@ function shortText(text: string, limit = 320) {
     <div class="skeleton block"></div>
   </div>
 
-  <!-- Content -->
   <div v-else-if="data" class="movie">
-    <!-- Backdrop -->
     <div v-if="backdrop" class="backdrop">
       <img :src="backdrop" alt="" />
     </div>
 
-    <!-- Main info -->
     <div class="content">
-      <img
-        v-if="poster"
-        :src="poster"
-        :alt="data.title"
-        class="poster"
-      />
+      <img v-if="poster" :src="poster" :alt="data.title" class="poster" />
 
       <div class="info">
         <h1 class="title">
@@ -72,11 +61,7 @@ function shortText(text: string, limit = 320) {
         <RatingStars :value="data.vote_average" />
 
         <div class="genres">
-          <span
-            v-for="g in data.genres || []"
-            :key="g.id"
-            class="badge"
-          >
+          <span v-for="g in data.genres || []" :key="g.id" class="badge">
             {{ g.name }}
           </span>
         </div>
@@ -84,11 +69,7 @@ function shortText(text: string, limit = 320) {
         <p class="overview">{{ data.overview }}</p>
 
         <div class="actions">
-          <button
-            class="btn primary"
-            v-if="trailerKey"
-            @click="showTrailer = true"
-          >
+          <button class="btn primary" v-if="trailerKey" @click="showTrailer = true">
             Watch Trailer
           </button>
 
@@ -97,7 +78,7 @@ function shortText(text: string, limit = 320) {
           </button>
         </div>
 
-        <div class="cast">
+        <div class="mini-cast" v-if="(data.credits?.cast || []).length">
           <h3>Top Cast</h3>
           <div class="cast-list">
             <span
@@ -113,10 +94,7 @@ function shortText(text: string, limit = 320) {
     </div>
 
     <!-- Reviews -->
-    <section
-      v-if="data.reviews?.results?.length"
-      class="reviews"
-    >
+    <section v-if="data.reviews?.results?.length" class="reviews">
       <div class="reviews-inner">
         <h3>User Reviews</h3>
 
@@ -126,7 +104,10 @@ function shortText(text: string, limit = 320) {
           class="review-card"
         >
           <header class="review-header">
-            <strong>{{ r.author }}</strong>
+            <div class="author">
+              <strong>{{ r.author }}</strong>
+            </div>
+
             <span class="review-date">
               {{ new Date(r.created_at).toLocaleDateString() }}
             </span>
@@ -146,22 +127,21 @@ function shortText(text: string, limit = 320) {
         </article>
       </div>
     </section>
+
+    <!-- Если отзывов нет — просто не показываем блок -->
+    <section v-else class="reviews reviews-empty">
+      <div class="reviews-inner">
+        <h3>User Reviews</h3>
+        <p class="muted">No reviews yet.</p>
+      </div>
+    </section>
   </div>
 
-  <!-- Trailer -->
-  <TrailerModal
-    v-if="showTrailer"
-    :ytKey="trailerKey"
-    @close="showTrailer = false"
-  />
+  <TrailerModal v-if="showTrailer" :ytKey="trailerKey" @close="showTrailer = false" />
 </template>
 
 <style scoped>
-/* Layout */
-.movie {
-  display: grid;
-  gap: 28px;
-}
+.movie { display: grid; gap: 28px; }
 
 .backdrop img {
   width: 100%;
@@ -181,43 +161,24 @@ function shortText(text: string, limit = 320) {
   border: 1px solid rgba(255,255,255,0.08);
 }
 
-.info {
-  display: grid;
-  gap: 12px;
-}
+.info { display: grid; gap: 12px; }
 
-.title {
-  margin: 0;
-}
+.title { margin: 0; }
+.year { margin-left: 6px; font-size: 0.8em; color: var(--muted); }
 
-.year {
-  margin-left: 6px;
-  font-size: 0.8em;
-  color: var(--muted);
-}
-
-.genres,
-.cast-list {
+.genres, .cast-list {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.overview {
-  color: var(--muted);
-  line-height: 1.6;
-}
+.overview { color: var(--muted); line-height: 1.6; }
 
-.actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
+.actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
-/* Reviews */
 .reviews {
-  margin-top: 32px;
-  padding-top: 24px;
+  margin-top: 16px;
+  padding-top: 22px;
   border-top: 1px solid rgba(255,255,255,0.08);
 }
 
@@ -227,7 +188,7 @@ function shortText(text: string, limit = 320) {
 }
 
 .review-card {
-  margin-bottom: 18px;
+  margin-top: 14px;
   padding: 18px;
   border-radius: 16px;
   background: rgba(255,255,255,0.045);
@@ -237,13 +198,12 @@ function shortText(text: string, limit = 320) {
 .review-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 6px;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
-.review-date {
-  font-size: 12px;
-  color: var(--muted);
-}
+.review-date { font-size: 12px; color: var(--muted); }
 
 .review-text {
   font-size: 14px;
@@ -252,7 +212,7 @@ function shortText(text: string, limit = 320) {
 }
 
 .review-toggle {
-  margin-top: 6px;
+  margin-top: 8px;
   background: none;
   border: none;
   padding: 0;
@@ -262,9 +222,9 @@ function shortText(text: string, limit = 320) {
   cursor: pointer;
 }
 
-.review-toggle:hover {
-  text-decoration: underline;
-}
+.review-toggle:hover { text-decoration: underline; }
+
+.muted { color: var(--muted); }
 
 /* Skeletons */
 .skeleton {
